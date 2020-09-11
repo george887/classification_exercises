@@ -5,22 +5,35 @@ from sklearn.impute import SimpleImputer
 import warnings
 from sklearn.model_selection import train_test_split
 
-def prep_iris(irisdf):
+def prep_iris(cached = True):
     '''
     This function acquires and prepares the iris data from a local csv, default.
     Passing cached=False acquires fresh data from Codeup db and writes to csv.
     Returns the iris df with dummy variables encoding species.
     '''
     # use my aquire function to read data into a df from a csv file
-    irisdf = get_iris_data(cached)
+    df = get_iris_data(cached)
     cols_to_drop = ['species_id','measurement_id']
-    irisdf = irisdf.drop(columns=cols_to_drop)
-    irisdf = irisdf.rename({'species_name':'species'}, axis = 1)
-    dummy_df = pd.get_dummies(irisdf[['species']], dummy_na=False)
-    irisdf = pd.concat([irisdf, dummy_df], axis = 1)
-    return irisdf
+    df = df.drop(columns=cols_to_drop)
+    df = df.rename({'species_name':'species'}, axis = 1)
+    dummy_df = pd.get_dummies(df[['species']], dummy_na=False)
+    df = pd.concat([df, dummy_df], axis = 1)
+    return df
 
-def prep_titanic(titanic_df):
+def iris_split():
+
+    train_validate, test = train_test_split(iris_df, test_size=.2, 
+                                        random_state=123, 
+                                        stratify=iris_df.species_name)
+    train, validate = train_test_split(train_validate, test_size=.3, 
+                                   random_state=123, 
+                                   stratify=iris_df.species_name)
+   
+    return train, validate, test
+
+
+
+def prep_titanic(casched = True):
     '''
     This function reads titanic data into a df from a csv file.
     Returns prepped train, validate, and test dfs
