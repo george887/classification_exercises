@@ -1,9 +1,10 @@
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder, MinMaxScaler
-from sklearn.impute import SimpleImputer
-import warnings
 from sklearn.model_selection import train_test_split
+from sklearn.impute import SimpleImputer
+from acquire import get_titanic_data, get_iris_data
+import warnings
+warnings.filterwarnings("ignore")
 
 def prep_iris(cached = True):
     '''
@@ -31,9 +32,40 @@ def iris_split():
    
     return train, validate, test
 
+def titanic_split(df):
+    '''
+    This function performs split on titanic data, stratify survived.
+    Returns train, validate, and test dfs.
+    '''
+    train_validate, test = train_test_split(df, test_size=.2, 
+                                        random_state=123, 
+                                        stratify=df.survived)
+    train, validate = train_test_split(train_validate, test_size=.3, 
+                                   random_state=123, 
+                                   stratify=train_validate.survived)
+    return train, validate, test
+def impute_age(train, validate, test):
+    '''
+    This function imputes the mean of the age column into
+    observations with missing values.
+    Returns transformed train, validate, and test df.
+    '''
+    # create the imputer object with mean strategy
+    imputer = SimpleImputer(strategy = 'mean')
+    
+    # fit on and transform age column in train
+    train['age'] = imputer.fit_transform(train[['age']])
+    
+    # transform age column in validate
+    validate['age'] = imputer.transform(validate[['age']])
+    
+    # transform age column in test
+    test['age'] = imputer.transform(test[['age']])
+    
+    return train, validate, test
 
 
-def prep_titanic(casched = True):
+def prep_titanic(cached = True):
     '''
     This function reads titanic data into a df from a csv file.
     Returns prepped train, validate, and test dfs
@@ -45,13 +77,13 @@ def prep_titanic(casched = True):
     df = df[~df.embarked.isnull()]
     
     # encode embarked using dummy columns
-    titanic_dummies = pd.get_dummies(df.embarked, drop_first=True)
+    titanic_dummies = pd.get_dummies(df[["embarked", "sex"]], drop_first=True)
     
     # join dummy columns back to df
     df = pd.concat([df, titanic_dummies], axis=1)
     
     # drop the deck column
-    df = df.drop(columns='deck')
+    df = df.drop(columns=['deck', 'embarked'])
     
     # split data into train, validate, test dfs
     train, validate, test = titanic_split(df)
