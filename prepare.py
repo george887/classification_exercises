@@ -83,7 +83,7 @@ def prep_titanic(cached = True):
     df = pd.concat([df, titanic_dummies], axis=1)
     
     # drop the deck column
-    df = df.drop(columns=['deck', 'embarked'])
+    df = df.drop(columns=['deck', 'embarked', 'passenger_id', 'sex','class', 'embark_town'])
     
     # split data into train, validate, test dfs
     train, validate, test = titanic_split(df)
