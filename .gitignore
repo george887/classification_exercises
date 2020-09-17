@@ -4,3 +4,10 @@ env.py
 __pycache__
 .vscode/
 .csv
+EvaluatingModelPerformance.pdf
+Modeling.pdf
+Python_Seaborn_Cheat_Sheet.pdf
+classification .pdf
+iris_df.csv
+titanic_df.csv
+untidy_data/
